@@ -5,6 +5,24 @@ A low-code, stateless, zero-database GCS-ledger architecture for hot-swapping LL
 
 In traditional software, changing logic requires a code deployment. In the **Double-Loop** architecture, we **decouple the 'Brain' (Logic) from the 'Body' (Execution)**. By storing your system's intelligence in **Google Cloud Storage (GCS)** as JSON 'Blueprints', you transform infrastructure into a dynamic, live-updating organism.
 
+┌──────────────────────────────┐
+                  │      GCS: "The Brain"        │
+                  │  - Pipe Blueprints (JSON)    │
+                  │  - Job Ledgers (JSON)        │
+                  └──────────────────────────────┘
+                       ▲                  ▲
+         1. Reads      │                  │ 4. Writes
+            Config     │                  │    Progress
+                       ▼                  │
+   ┌───────────────────────┐    2. Spawns  ┌───────────────────────┐
+   │    Gateway (Run)      │ ────────────> │  Vertex AI Batch Job  │
+   └───────────────────────┘               └───────────────────────┘
+               ▲                                       │
+               │ 5. Trigger next stage                 │ 3. Notifies
+               │                                       ▼
+   ┌───────────────────────┐               ┌───────────────────────┐
+   │    Router (Run)       │ <──────────── │  GCS Bucket Event     │
+   └───────────────────────┘  Secure Token └───────────────────────┘
 ---
 
 ## 🚦 Core Architecture & Dual-Trigger Loop
