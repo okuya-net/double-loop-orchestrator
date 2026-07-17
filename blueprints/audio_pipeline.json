@@ -1,0 +1,34 @@
+{
+  "pipeline_id": "audio_intel_v3",
+  "version": "3.1.0",
+  "stages": [
+    {
+      "id": "step_01_transcription",
+      "executor": "vertex-speech-to-text",
+      "parameters": {
+        "model_name": "gemini-3.1-flash-lite",
+        "language": "en-US"
+      }
+    },
+    {
+      "id": "step_02_deep_sentiment",
+      "executor": "vertex-reasoning-engine",
+      "parameters": {
+        "model_name": "gemini-3.1-pro",
+        "response_schema": {
+          "sentiment": "string",
+          "urgency_score": "integer",
+          "emotional_tone": "string"
+        }
+      }
+    },
+    {
+      "id": "step_03_action_extraction",
+      "executor": "vertex-report-generator",
+      "parameters": {
+        "model_name": "gemini-3.1-flash",
+        "output_format": "markdown"
+      }
+    }
+  ]
+}
