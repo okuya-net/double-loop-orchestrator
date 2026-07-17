@@ -36,3 +36,30 @@ def gcs_orchestrator_router(cloud_event):
         
     orchestrator_logic(bucket, name)
     return "OK", 200
+
+@functions_framework.http
+def http_orchestrator_gateway(request):
+    """HTTPS Entry point for direct API calls."""
+    # Handle CORS preflight requests
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Max-Age': '3600'
+        }
+        return ('', 204, headers)
+
+    request_json = request.get_json(silent=True)
+    
+    if not request_json or 'bucket' not in request_json or 'file_name' not in request_json:
+        return {"error": "Missing bucket or file_name in payload"}, 400
+
+    bucket = request_json['bucket']
+    file_name = request_json['file_name']
+    
+    # Run the exact same stateless logic
+    result = orchestrator_logic(bucket, file_name)
+    
+    headers = {'Access-Control-Allow-Origin': '*'}
+    return {"status": result, "processed_file": file_name}, 200, headers
