@@ -13,16 +13,28 @@ Your stateless orchestrator can be triggered in two ways depending on your syste
 
 ```mermaid
 graph TD
-    subgraph Event-Driven (Async)
-        A[File Uploaded] -->|Triggers| B(GCS Cloud Event)
-        B -->|Invokes| C[Cloud Function Router]
+    %% Define styles
+    classDef brain fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef gate fill:#bbf,stroke:#333,stroke-width:1px;
+    
+    subgraph Trigger_Layer ["Traffic Control"]
+        direction LR
+        A["File Uploaded (GCS Event)"] -->|Invokes| C["Router (Cloud Function)"]
+        D["POST Payload (Direct HTTP API)"] -->|Invokes| E["Gateway (Cloud Function)"]
     end
-    subgraph Direct API (Sync)
-        D[Frontend / Webhook Client] -->|POST Request| E(HTTPS Gateway)
-        E -->|Invokes| C
+
+    subgraph Core_Loop ["The Orchestration Loop"]
+        E -->|1. Reads Config| F["GCS 'The Brain' (Ledger)"]
+        C -->|1. Reads Config| F
+        E -->|2. Spawns| G["Vertex AI Batch Job"]
+        G -->|3. Notifies| H["GCS Bucket Event"]
+        H -->|4. Secure Token| C
+        C -->|5. Writes Progress| F
     end
-    C -->|1. Reads Blueprint| F[GCS Ledger Bucket]
-    C -->|2. Orchestrates Logic| G[Gemini 3.1 LLMs]
+
+    class F brain;
+    class E,C gate;
+
 
 ### **What lives in the Ledger?**
 
