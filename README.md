@@ -27,45 +27,39 @@ By storing your system's intelligence and DAG instructions directly in Google Cl
 ┌───────────────────────┐              │                      │
 │    Router (Run)       │ <────────────┴──────────────────────┘
 └───────────────────────┘            3. GCS Bucket Event / 4. Secure Token
-
+```
 🎬 System Interaction Flow
 1. Gateway receives an execution request (via API or manual start) and reads the current orchestration Blueprint from GCS.
 2. The orchestrator spawns processing steps like a Vertex AI Batch Job or target LLM worker.
 3. Once completed, a native GCS Bucket Event fires. The event securely routes token data back into the stateless Router to evaluate the next step.
 4. Progress metrics and run details are stored back in the GCS Ledger.
 
-📋 What Lives inside the GCS Ledger?
+## 💡 What Lives inside the GCS Ledger?
 
 Rather than maintaining a heavy relational schema, everything required to run and audibly trace a pipeline is contained inside flat, transaction-safe JSON files:
 
-🏗️ Pipeline Blueprints: Sequence of execution steps, including LLM calls and Multimedia Processing parameters (e.g., Image Resizing, Video Compression metadata).
-🧠 Model Metadata: Assigns LLM versions (e.g., swapping Gemini 3.1 Pro to Gemini 3.1 Flash-Lite) and details multi-model fallback routines.
-📜 System Instructions: Specific context-driven prompts, persona parameters, and tone constraints.
-📐 Response Schemas: Strictly structured Pydantic JSON targets to guarantee model outputs conform exactly to downstream database requirements.
-🧹 Lifecycle Rules: Explicit instructions telling the orchestrator when to move, archive, or delete temporary data payloads after execution completes.
-🚀 Scaling & Future-Proofing Matrix
+**🏗️ Pipeline Blueprints:** Sequence of execution steps, including LLM calls and Multimedia Processing parameters (e.g., Image Resizing, Video Compression metadata).
 
-Feature / Benefit
-Technical Realization
-🚦 Dual-Trigger Architecture
-Trigger execution flows simultaneously via standard POST payload requests or automatically when assets land in a GCS storage bucket.
+**🧠 Model Metadata:** Assigns LLM versions (e.g., swapping Gemini 3.1 Pro to Gemini 3.1 Flash-Lite) and details multi-model fallback routines.
 
-⚡ Zero Redeployments
-Upgrade models, fine-tune prompts, or modify DAG pathways instantly by editing a JSON blueprint. Skip the 5-minute CI/CD and container build bottlenecks.
+**📜 System Instructions:** Specific context-driven prompts, persona parameters, and tone constraints.
 
-📊 Deterministic Output
-Force AI outputs to conform to custom, hot-swapped schema definitions on the fly without breaking backend parser models.
+**📐 Response Schemas:** Strictly structured Pydantic JSON targets to guarantee model outputs conform exactly to downstream database requirements.
 
-🛠️ Custom Processing Steps
-Plug pre-processing transformations (like scaling images) and post-processing tasks (like compressing outputs) directly into the JSON configuration file.
+**🧹 Lifecycle Rules:** Explicit instructions telling the orchestrator when to move, archive, or delete temporary data payloads after execution completes.
 
-🛡️ Future-Proof Foundation
-Seamlessly swap out decaying components or old prompts to match newly released LLMs (like Gemini 3.1) in seconds.
 
-📈 Infinite Scaling
-Zero persistent database lock-ins. Compute layers scale instantly from 1 to 1,000,000 requests without connection pool bottlenecks.
+## 🚀 The Value Proposition (Scaling & Future-Proofing)
 
-⚡ Getting Started
-Interested in running the Double-Loop architecture yourself? Click the button below to launch an interactive sandbox in Google Colab. The demo contains a fully functional simulation mode (no GCP access needed) as well as an active GCS deployment guide.🛡️ Future-Proof Foundation	Seamlessly swap out decaying components or old prompts to match newly released LLMs (like Gemini 3.1) in seconds.
+| Feature | Description |
+| :--- | :--- |
+| **🚦 Dual-Trigger Architecture** | Trigger execution flows simultaneously via standard POST payload requests or automatically when assets land in a GCS storage bucket. |
+| **⚡ Zero Redeployments** | Upgrade models, fine-tune prompts, or modify DAG pathways instantly by editing a JSON blueprint. Skip the 5-minute CI/CD and container build bottlenecks. |
+| **📊 Deterministic Output** | Force AI outputs to conform to custom, hot-swapped schema definitions on the fly without breaking backend parser models. |
+| **🛠️ Custom Processing Steps** | Plug pre-processing transformations (like scaling images) and post-processing tasks (like compressing outputs) directly into the JSON configuration file. |
+| **🛡️ Future-Proof Foundation** | Seamlessly swap out decaying components or old prompts to match newly released LLMs (like Gemini 3.1) in seconds. |
+| **📈 Infinite Scaling** | Zero persistent database lock-ins. Compute layers scale instantly from 1 to 1,000,000 requests without connection pool bottlenecks. |
 
-📈 Infinite Scaling	Zero persistent database lock-ins. Compute layers scale instantly from 1 to 1,000,000 requests simultaneously.
+##  Getting Started
+
+Interested in running the Double-Loop architecture yourself? Click the button below to launch an interactive sandbox in Google Colab. The demo contains a fully functional simulation mode (no GCP access needed) as well as an active GCS deployment guide.
