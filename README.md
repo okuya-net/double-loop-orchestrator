@@ -7,20 +7,19 @@ In traditional software, changing logic requires a code deployment. In the **Dou
 
 ---
 
-## 🚦 Dual-Trigger Architecture: GCS Event vs. Direct HTTP API
+## 🚦 Core Architecture & Dual-Trigger Loop
 
-Your stateless orchestrator can be triggered in two ways depending on your system's integration needs:
+Your stateless orchestrator can be triggered either asynchronously via file uploads or synchronously via standard HTTP API calls. It reads configurations dynamicially from the GCS "Brain" without needing database polling.
 
 ```mermaid
 graph TD
-    %% Define styles
     classDef brain fill:#f9f,stroke:#333,stroke-width:2px;
     classDef gate fill:#bbf,stroke:#333,stroke-width:1px;
     
     subgraph Trigger_Layer ["Traffic Control"]
         direction LR
-        A["File Uploaded (GCS Event)"] -->|Invokes| C["Router (Cloud Function)"]
-        D["POST Payload (Direct HTTP API)"] -->|Invokes| E["Gateway (Cloud Function)"]
+        A["File Upload (GCS Event)"] -->|Invokes| C["Router (Cloud Function)"]
+        D["POST Payload (Direct API)"] -->|Invokes| E["Gateway (Cloud Function)"]
     end
 
     subgraph Core_Loop ["The Orchestration Loop"]
@@ -34,7 +33,6 @@ graph TD
 
     class F brain;
     class E,C gate;
-
 
 ### **What lives in the Ledger?**
 
