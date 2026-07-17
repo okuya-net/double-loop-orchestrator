@@ -5,24 +5,29 @@ A low-code, stateless, zero-database GCS-ledger architecture for hot-swapping LL
 
 In traditional software, changing logic requires a code deployment. In the **Double-Loop** architecture, we **decouple the 'Brain' (Logic) from the 'Body' (Execution)**. By storing your system's intelligence in **Google Cloud Storage (GCS)** as JSON 'Blueprints', you transform infrastructure into a dynamic, live-updating organism.
 
-┌──────────────────────────────┐
-                  │      GCS: "The Brain"        │
-                  │  - Pipe Blueprints (JSON)    │
-                  │  - Job Ledgers (JSON)        │
-                  └──────────────────────────────┘
-                       ▲                  ▲
-         1. Reads      │                  │ 4. Writes
-            Config     │                  │    Progress
-                       ▼                  │
-   ┌───────────────────────┐    2. Spawns  ┌───────────────────────┐
-   │    Gateway (Run)      │ ────────────> │  Vertex AI Batch Job  │
-   └───────────────────────┘               └───────────────────────┘
-               ▲                                       │
-               │ 5. Trigger next stage                 │ 3. Notifies
-               │                                       ▼
-   ┌───────────────────────┐               ┌───────────────────────┐
-   │    Router (Run)       │ <──────────── │  GCS Bucket Event     │
-   └───────────────────────┘  Secure Token └───────────────────────┘
+flowchart TB
+    %% Nodes
+    GCS["📂 Google Cloud Storage (The Brain)<br>• Pipe Blueprints (JSON)<br>• Job Ledgers (JSON)"]
+    Gateway["⚡ Gateway (Cloud Run)"]
+    Vertex["🧠 Vertex AI Batch Job"]
+    Event["🔔 GCS Bucket Event"]
+    Router["🔀 Router (Cloud Run)"]
+
+    %% Flow Layout & Interactions
+    Gateway <-->| "1. Reads/Writes State" | GCS
+    Gateway -->| "2. Spawns" | Vertex
+    Vertex -->| "4. Writes Progress" | GCS
+    Vertex -.->| "3. Notifies" | Event
+    Event -->| "Secure Token" | Router
+    Router -->| "5. Trigger Next Stage" | Gateway
+
+    %% Styling (GCP inspired color palette)
+    classDef default fill:#fafafa,stroke:#333,stroke-width:1px,color:#333;
+    style GCS fill:#e8f0fe,stroke:#4285f4,stroke-width:2px,color:#1a73e8,font-weight:bold
+    style Gateway fill:#fef7e0,stroke:#fbbc05,stroke-width:2px,color:#b06000,font-weight:bold
+    style Vertex fill:#e6f4ea,stroke:#34a853,stroke-width:2px,color:#137333,font-weight:bold
+    style Event fill:#fce8e6,stroke:#ea4335,stroke-width:2px,color:#c5221f,font-weight:bold
+    style Router fill:#f3e8fd,stroke:#a142f4,stroke-width:2px,color:#681da8,font-weight:bold
 ---
 
 ## 🚦 Core Architecture & Dual-Trigger Loop
