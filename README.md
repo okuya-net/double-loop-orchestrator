@@ -5,6 +5,25 @@ A low-code, stateless, zero-database GCS-ledger architecture for hot-swapping LL
 
 In traditional software, changing logic requires a code deployment. In the **Double-Loop** architecture, we **decouple the 'Brain' (Logic) from the 'Body' (Execution)**. By storing your system's intelligence in **Google Cloud Storage (GCS)** as JSON 'Blueprints', you transform infrastructure into a dynamic, live-updating organism.
 
+---
+
+## 🚦 Dual-Trigger Architecture: GCS Event vs. Direct HTTP API
+
+Your stateless orchestrator can be triggered in two ways depending on your system's integration needs:
+
+```mermaid
+graph TD
+    subgraph Event-Driven (Async)
+        A[File Uploaded] -->|Triggers| B(GCS Cloud Event)
+        B -->|Invokes| C[Cloud Function Router]
+    end
+    subgraph Direct API (Sync)
+        D[Frontend / Webhook Client] -->|POST Request| E(HTTPS Gateway)
+        E -->|Invokes| C
+    end
+    C -->|1. Reads Blueprint| F[GCS Ledger Bucket]
+    C -->|2. Orchestrates Logic| G[Gemini 3.1 LLMs]
+
 ### **What lives in the Ledger?**
 
 *   **🏗️ Pipeline Blueprints:** Sequence of steps including LLM calls and **Multimedia Processing** (e.g., Image Resizing, Video Compression).
